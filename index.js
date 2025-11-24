@@ -30,18 +30,45 @@ async function run() {
         // Database
         const database = client.db('ecoTrack');
         const addNewCollection = database.collection('add_new_challenges')
+        const usersCollection = database.collection('users')
 
+        // USERS APIs
+        app.post('/users', async (req, res) => {
+            const newUser = req.body;
+
+            const email = req.body.email;
+            const query = { email: email }
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                res.send({ message: "user already exits. Do not need to insert again" })
+            }
+            else {
+                const result = await usersCollection.insertOne(newUser);
+                res.send(result);
+            }
+        })
+
+
+
+        // Challenge APIs
         app.get('/challenges', async (req, res) => {
             const result = await addNewCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.get('/active-challenges', async (req, res) => {
+            const cursor = addNewCollection.find().sort({
+                createdAt: -1,
+                updatedAt: -1,
+            }).limit(6);
+            const result = await cursor.toArray();
             res.send(result);
         })
 
         app.get('/challenges/:id', async (req, res) => {
             const { id } = req.params;
             console.log(id);
-
             const result = await addNewCollection.findOne({ _id: new ObjectId(id) })
-
             res.send({
                 success: true,
                 result
@@ -52,6 +79,11 @@ async function run() {
         app.post('/challenges', async (req, res) => {
             const data = req.body;
             console.log(data);
+
+            // Add timestamps
+            data.createdAt = new Date();
+            data.updatedAt = new Date();
+
             const result = await addNewCollection.insertOne(data)
             res.send({
                 success: true,
@@ -59,19 +91,19 @@ async function run() {
             })
         })
 
+
         app.put('/challenges/:id', async (req, res) => {
             const { id } = req.params
             const data = req.body
-            // console.log(id)
-            // console.log(data)
             const objectId = new ObjectId(id)
             const filter = { _id: objectId }
+
+            data.updatedAt = new Date();
+
             const update = {
-                $set:data
+                $set: data
             }
-
             const result = await addNewCollection.updateOne(filter, update)
-
             res.send({
                 success: true,
                 result
@@ -79,9 +111,7 @@ async function run() {
         })
 
 
-
-
-
+        
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
