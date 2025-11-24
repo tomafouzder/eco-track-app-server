@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.POST || 3000;
 
@@ -36,11 +36,23 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/get-challenges/:id', async(req, res) => {
+            const { id } = req.params;
+            console.log(id);
+
+            const result = await addNewCollection.findOne({_id: new ObjectId(id)}) 
+
+            res.send({
+                success: true,
+                result
+            })
+        })
+
 
         app.post('/add-challenges', async (req, res) => {
             const data = req.body;
             console.log(data);
-            const result = await addNewCollection.insertOne(data )
+            const result = await addNewCollection.insertOne(data)
             res.send({
                 success: true,
                 result
