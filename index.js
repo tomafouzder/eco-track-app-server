@@ -31,16 +31,16 @@ async function run() {
         const database = client.db('ecoTrack');
         const addNewCollection = database.collection('add_new_challenges')
 
-        app.get('/get-challenges', async (req, res) => {
+        app.get('/challenges', async (req, res) => {
             const result = await addNewCollection.find().toArray();
             res.send(result);
         })
 
-        app.get('/get-challenges/:id', async(req, res) => {
+        app.get('/challenges/:id', async (req, res) => {
             const { id } = req.params;
             console.log(id);
 
-            const result = await addNewCollection.findOne({_id: new ObjectId(id)}) 
+            const result = await addNewCollection.findOne({ _id: new ObjectId(id) })
 
             res.send({
                 success: true,
@@ -49,10 +49,29 @@ async function run() {
         })
 
 
-        app.post('/add-challenges', async (req, res) => {
+        app.post('/challenges', async (req, res) => {
             const data = req.body;
             console.log(data);
             const result = await addNewCollection.insertOne(data)
+            res.send({
+                success: true,
+                result
+            })
+        })
+
+        app.put('/challenges/:id', async (req, res) => {
+            const { id } = req.params
+            const data = req.body
+            // console.log(id)
+            // console.log(data)
+            const objectId = new ObjectId(id)
+            const filter = { _id: objectId }
+            const update = {
+                $set:data
+            }
+
+            const result = await addNewCollection.updateOne(filter, update)
+
             res.send({
                 success: true,
                 result
