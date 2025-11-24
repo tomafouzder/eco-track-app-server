@@ -31,6 +31,7 @@ async function run() {
         const database = client.db('ecoTrack');
         const addNewCollection = database.collection('add_new_challenges')
         const usersCollection = database.collection('users')
+        const joinCollection = database.collection('join_challenge_data')
 
         // USERS APIs
         app.post('/users', async (req, res) => {
@@ -40,14 +41,15 @@ async function run() {
             const query = { email: email }
             const existingUser = await usersCollection.findOne(query);
             if (existingUser) {
-                res.send({ message: "user already exits. Do not need to insert again" })
+                res.send({
+                    message: "user already exits. Do not need to insert again",
+                })
             }
             else {
                 const result = await usersCollection.insertOne(newUser);
                 res.send(result);
             }
         })
-
 
 
         // Challenge APIs
@@ -75,7 +77,6 @@ async function run() {
             })
         })
 
-
         app.post('/challenges', async (req, res) => {
             const data = req.body;
             console.log(data);
@@ -90,7 +91,6 @@ async function run() {
                 result
             })
         })
-
 
         app.put('/challenges/:id', async (req, res) => {
             const { id } = req.params
@@ -111,7 +111,22 @@ async function run() {
         })
 
 
-        
+        // USER JOIN CHALLENGE APIs
+
+        app.get('/challenges/join-challenge/:challengeId', async (req, res) => {
+            const challengeId = req.params.challengeId;
+            const query = { challengeId: challengeId }
+            const cursor = joinCollection.find(query).sort({ progress: - 1 })
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post('/join-challenge', async (req, res) => {
+            const newJoin = req.body;
+            const result = await joinCollection.insertOne(newJoin);
+            res.send(result);
+        })
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
