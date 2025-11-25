@@ -51,13 +51,15 @@ async function run() {
             }
         })
 
-
         // Challenge APIs
+
+        // all challenge data
         app.get('/challenges', async (req, res) => {
             const result = await addNewCollection.find().toArray();
             res.send(result);
         })
 
+        // home page latest active challenge from all challenge data
         app.get('/active-challenges', async (req, res) => {
             const cursor = addNewCollection.find().sort({
                 createdAt: -1,
@@ -67,6 +69,7 @@ async function run() {
             res.send(result);
         })
 
+        // challenge details
         app.get('/challenges/:id', async (req, res) => {
             const { id } = req.params;
             console.log(id);
@@ -77,6 +80,7 @@ async function run() {
             })
         })
 
+        // new challenge post create
         app.post('/challenges', async (req, res) => {
             const data = req.body;
             console.log(data);
@@ -92,6 +96,7 @@ async function run() {
             })
         })
 
+        // update challenge
         app.put('/challenges/:id', async (req, res) => {
             const { id } = req.params
             const data = req.body
@@ -113,6 +118,7 @@ async function run() {
 
         // USER JOIN CHALLENGE APIs
 
+        // total join
         app.get('/challenges/join-challenge/:challengeId', async (req, res) => {
             const challengeId = req.params.challengeId;
             const query = { challengeId: challengeId }
@@ -121,6 +127,10 @@ async function run() {
             res.send(result);
         })
 
+        // my join
+
+
+        // new join
         app.post('/join-challenge', async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
