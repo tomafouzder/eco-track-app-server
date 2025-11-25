@@ -128,13 +128,30 @@ async function run() {
         })
 
         // my join
-
+        app.get('/join-challenge', async (req, res) => {
+            const email = req.query.email;
+            const query = {};
+            if (email) {
+                query.userId = email;
+            }
+            const cursor = joinCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
         // new join
         app.post('/join-challenge', async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
             res.send(result);
+        })
+
+        // delete my join 
+        app.delete('/join-challenge/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await joinCollection.deleteOne(query)
+            res.send(result)
         })
 
         // Send a ping to confirm a successful connection
