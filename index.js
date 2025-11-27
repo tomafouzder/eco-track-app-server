@@ -32,6 +32,7 @@ async function run() {
         const addNewCollection = database.collection('add_new_challenges')
         const usersCollection = database.collection('users')
         const joinCollection = database.collection('join_challenge_data')
+        const tipsCollection = database.collection('tips')
 
         // USERS APIs
         app.post('/users', async (req, res) => {
@@ -51,14 +52,13 @@ async function run() {
             }
         })
 
-        // Challenge APIs
+        // CHALLENGE APIs
 
         // all challenge data
         app.get('/challenges', async (req, res) => {
             const result = await addNewCollection.find().toArray();
             res.send(result);
         })
-
         // home page latest active challenge from all challenge data
         app.get('/active-challenges', async (req, res) => {
             const cursor = addNewCollection.find().sort({
@@ -68,7 +68,6 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-
         // challenge details
         app.get('/challenges/:id', async (req, res) => {
             const { id } = req.params;
@@ -79,7 +78,6 @@ async function run() {
                 result
             })
         })
-
         // new challenge post create
         app.post('/challenges', async (req, res) => {
             const data = req.body;
@@ -95,7 +93,6 @@ async function run() {
                 result
             })
         })
-
         // update challenge
         app.put('/challenges/:id', async (req, res) => {
             const { id } = req.params
@@ -126,7 +123,6 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-
         // my join
         app.get('/join-challenge', async (req, res) => {
             const email = req.query.email;
@@ -138,14 +134,12 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result)
         })
-
         // new join
         app.post('/join-challenge', async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
             res.send(result);
         })
-
         // delete my join 
         app.delete('/join-challenge/:id', async (req, res) => {
             const id = req.params.id;
@@ -153,6 +147,24 @@ async function run() {
             const result = await joinCollection.deleteOne(query)
             res.send(result)
         })
+
+        // TIPS COLLECTION
+
+        // post tips apis
+        app.post('/tips', async (req, res) => {
+            const tips = req.body;
+            const result = await tipsCollection.insertOne(tips);
+            res.send(result)
+        })
+
+        // all tips data
+        app.get('/tips', async (req, res) => {
+            const result = await tipsCollection.find().toArray();
+            res.send(result);
+        })
+
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
