@@ -33,6 +33,7 @@ async function run() {
         const usersCollection = database.collection('users')
         const joinCollection = database.collection('join_challenge_data')
         const tipsCollection = database.collection('tips')
+        const eventCollection = database.collection('events')
 
         // USERS APIs
         app.post('/users', async (req, res) => {
@@ -150,6 +151,19 @@ async function run() {
 
         // TIPS COLLECTION
 
+        // all tips data
+        app.get('/tips', async (req, res) => {
+            const result = await tipsCollection.find().toArray();
+            res.send(result);
+        })
+        // home page latest resent tips from all tips data
+        app.get('/resent-tips', async (req, res) => {
+            const cursor = tipsCollection.find().sort({
+                createdAt: -1,
+            }).limit(6);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         // post tips apis
         app.post('/tips', async (req, res) => {
             const tips = req.body;
@@ -157,11 +171,30 @@ async function run() {
             res.send(result)
         })
 
+
+        // EVENT APIS
         // all tips data
-        app.get('/tips', async (req, res) => {
-            const result = await tipsCollection.find().toArray();
+        app.get('/events', async (req, res) => {
+            const result = await eventCollection.find().toArray();
             res.send(result);
         })
+        // event data post 
+        app.post('/events', async (req, res) => {
+            const data = req.body;
+            console.log(data);
+
+            // Add timestamps
+            data.createdAt = new Date();
+            data.updatedAt = new Date();
+
+            const result = await eventCollection.insertOne(data)
+            res.send({
+                success: true,
+                result
+            })
+        })
+
+
 
 
 
