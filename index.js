@@ -98,13 +98,9 @@ async function run() {
         })
 
         // my new challenge, i create
-        app.get('/challenges', async (req, res) => {
+        app.get('/my-challenges', verifyToken, async (req, res) => {
             const email = req.query.email;
-            const query = {};
-            if (email) {
-                query.userId = email;
-            }
-            const cursor = addNewCollection.find(query);
+            const cursor = addNewCollection.find({ createdBy: email });
             const result = await cursor.toArray();
             res.send(result)
         })
@@ -174,7 +170,7 @@ async function run() {
             res.send(result);
         })
         // my join
-        app.get('/join-challenge', async (req, res) => {
+        app.get('/join-challenge', verifyToken, async (req, res) => {
             const email = req.query.email;
             const query = {};
             if (email) {
@@ -188,7 +184,16 @@ async function run() {
         app.post('/join-challenge', async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
-            res.send(result);
+            const filter = { _id: new ObjectId(newJoin.challengeId) }
+            const update = {
+                $inc: { participants: 1 }
+            }
+            const participantCount = await addNewCollection.updateOne(filter, update)
+            res.send({
+                success: true,
+                insertedId: result.insertedId,
+                participantCount
+            });
         })
         // delete my join 
         app.delete('/join-challenge/:id', async (req, res) => {
