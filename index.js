@@ -89,23 +89,20 @@ async function run() {
             const result = await addNewCollection.find().toArray();
             res.send(result);
         })
-
         // search
         app.get('/search', async (req, res) => {
             const searchCategory = req.query.search;
             const result = await addNewCollection.find({ category: searchCategory }).toArray()
             res.send(result)
         })
-
-        // my new challenge, i create
+        // my challenge 
         app.get('/my-challenges', verifyToken, async (req, res) => {
             const email = req.query.email;
             const cursor = addNewCollection.find({ createdBy: email });
             const result = await cursor.toArray();
             res.send(result)
         })
-
-        // home page latest active challenge from all challenge data
+        //  active challenge 
         app.get('/active-challenges', async (req, res) => {
             const cursor = addNewCollection.find().sort({
                 createdAt: -1,
@@ -114,8 +111,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-
-        // challenge details
+        // challenge details 2
         app.get('/challenges/:id', verifyToken, async (req, res) => {
             const { id } = req.params;
             console.log(id);
@@ -125,7 +121,7 @@ async function run() {
                 result
             })
         })
-        // new challenge post create
+        // new challenge post 1 
         app.post('/challenges', verifyToken, async (req, res) => {
             const data = req.body;
             console.log(data);
@@ -140,7 +136,7 @@ async function run() {
                 result
             })
         })
-        // update challenge
+        // update challenge 5
         app.put('/challenges/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const data = req.body
@@ -158,18 +154,24 @@ async function run() {
                 result
             })
         })
-
+        // delete my challenge 4
+        app.delete('/challenges/:id',verifyToken, async (req, res) => {
+            const  id  = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await addNewCollection.deleteOne(query)
+            res.send(result)
+        })
 
         // USER JOIN CHALLENGE APIs
         // total join
-        app.get('/challenges/join-challenge/:challengeId', async (req, res) => {
+        app.get('/challenges/join-challenge/:challengeId',verifyToken, async (req, res) => {
             const challengeId = req.params.challengeId;
             const query = { challengeId: challengeId }
             const cursor = joinCollection.find(query).sort({ progress: - 1 })
             const result = await cursor.toArray();
             res.send(result);
         })
-        // my join
+        // my join 3
         app.get('/join-challenge', verifyToken, async (req, res) => {
             const email = req.query.email;
             const query = {};
@@ -180,7 +182,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result)
         })
-        // new join
+        // new join 4
         app.post('/join-challenge', async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
@@ -196,7 +198,7 @@ async function run() {
             });
         })
         // delete my join 
-        app.delete('/join-challenge/:id', async (req, res) => {
+        app.delete('/join-challenge/:id',verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await joinCollection.deleteOne(query)
