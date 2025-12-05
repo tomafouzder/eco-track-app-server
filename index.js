@@ -155,8 +155,8 @@ async function run() {
             })
         })
         // delete my challenge 4
-        app.delete('/challenges/:id',verifyToken, async (req, res) => {
-            const  id  = req.params.id;
+        app.delete('/challenges/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await addNewCollection.deleteOne(query)
             res.send(result)
@@ -164,7 +164,7 @@ async function run() {
 
         // USER JOIN CHALLENGE APIs
         // total join
-        app.get('/challenges/join-challenge/:challengeId',verifyToken, async (req, res) => {
+        app.get('/challenges/join-challenge/:challengeId', verifyToken, async (req, res) => {
             const challengeId = req.params.challengeId;
             const query = { challengeId: challengeId }
             const cursor = joinCollection.find(query).sort({ progress: - 1 })
@@ -197,8 +197,26 @@ async function run() {
                 participantCount
             });
         })
+        // update
+        app.put('/join-challenge/:id', verifyToken, async (req, res) => {
+            const { id } = req.params
+            const data = req.body
+            const objectId = new ObjectId(id)
+            const filter = { _id: objectId }
+
+            data.updatedAt = new Date();
+
+            const update = {
+                $set: data
+            }
+            const result = await joinCollection.updateOne(filter, update)
+            res.send({
+                success: true,
+                result
+            })
+        })
         // delete my join 
-        app.delete('/join-challenge/:id',verifyToken, async (req, res) => {
+        app.delete('/join-challenge/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await joinCollection.deleteOne(query)
