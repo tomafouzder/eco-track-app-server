@@ -65,7 +65,7 @@ async function run() {
         const eventCollection = database.collection('events')
 
         // USERS APIs
-        app.post('/users', async (req, res) => {
+        app.post('/users', verifyToken,  async (req, res) => {
             const newUser = req.body;
 
             const email = req.body.email;
@@ -83,7 +83,6 @@ async function run() {
         })
 
         // CHALLENGE APIs
-
         // all challenge data
         app.get('/challenges', async (req, res) => {
             const result = await addNewCollection.find().toArray();
@@ -183,7 +182,7 @@ async function run() {
             res.send(result)
         })
         // new join 4
-        app.post('/join-challenge', async (req, res) => {
+        app.post('/join-challenge', verifyToken, async (req, res) => {
             const newJoin = req.body;
             const result = await joinCollection.insertOne(newJoin);
             const filter = { _id: new ObjectId(newJoin.challengeId) }
@@ -224,7 +223,6 @@ async function run() {
         })
 
         // TIPS COLLECTION
-
         // all tips data
         app.get('/tips', async (req, res) => {
             const result = await tipsCollection.find().toArray();
@@ -247,7 +245,6 @@ async function run() {
 
 
         // EVENT APIS
-
         // all event data
         app.get('/events', async (req, res) => {
             const result = await eventCollection.find().toArray();
