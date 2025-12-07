@@ -65,7 +65,7 @@ async function run() {
         const eventCollection = database.collection('events')
 
         // USERS APIs
-        app.post('/users', verifyToken,  async (req, res) => {
+        app.post('/users', verifyToken, async (req, res) => {
             const newUser = req.body;
 
             const email = req.body.email;
@@ -221,6 +221,24 @@ async function run() {
             const result = await joinCollection.deleteOne(query)
             res.send(result)
         })
+
+
+        app.get("/live-status", async (req, res) => {
+            try {
+                const activeChallenges = await addNewCollection.countDocuments({});
+                const totalParticipants = await joinCollection.countDocuments({});
+
+                res.send({
+                    activeChallenges,
+                    totalParticipants,
+                });
+
+            } catch (error) {
+                res.status(500).send({ error: true, message: error.message });
+            }
+        });
+
+
 
         // TIPS COLLECTION
         // all tips data
